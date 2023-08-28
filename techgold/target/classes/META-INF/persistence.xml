@@ -4,27 +4,30 @@
 	version="2.0">
 
 	<persistence-unit name="techgold">
-		<provider>org.hibernate.ejb.HibernatePersistence</provider>
-		<class>br.com.techgold.modelo.Funcionario</class>
+	<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>br.com.techgold.modelo.Checklist</class>
 		<class>br.com.techgold.modelo.Cliente</class>
-		<class>br.com.techgold.modelo.Solicitacao</class>
-		<class>br.com.techgold.modelo.Usuario</class>
-		<class>br.com.techgold.modelo.Fornecedor</class>
 		<class>br.com.techgold.modelo.Computador</class>
-		<class>br.com.techgold.modelo.Perifericos</class>
 		<class>br.com.techgold.modelo.Email</class>
-		
+		<class>br.com.techgold.modelo.Fornecedor</class>
+		<class>br.com.techgold.modelo.Funcionario</class>
+		<class>br.com.techgold.modelo.FuncionarioCliente</class>
+		<class>br.com.techgold.modelo.Perifericos</class>
+		<class>br.com.techgold.modelo.Sistema</class>
+		<class>br.com.techgold.modelo.Solicitacao</class>
+		<class>br.com.techgold.modelo.Tarefa</class>
+		<!-- <class>br.com.providerone.modelo.UploadFile</class> -->
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/techgold_sistema" />
 			<property name="javax.persistence.jdbc.user" value="techgold" />
 			<property name="javax.persistence.jdbc.password" value="techgold321" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
-			<!-- <property name="hibernate.show_sql" value="true" />  -->
-			<!-- <property name="hibernate.format_sql" value="true" />  -->
-			<!-- <property name="hibernate.hbm2ddl.auto" value="update" />  -->
+			<!--  <property name="hibernate.show_sql" value="true" /> -->
+			<property name="hibernate.format_sql" value="true" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
 
-			<!-- Número máximo de conexões -->
+<!-- Número máximo de conexões -->
 			<property name="hibernate.c3p0.max_size" value="100" />
 
 			<!-- Número minimo de conexões -->
@@ -79,7 +82,7 @@
 				tenho efeito. Zero significa que não existirá nenhuma imposição, Conexões 
 				em excesso não serão mais fechadas. -->
 			<!-- <property name="hibernate.c3p0.maxIdleTimeExcessConnections"
-				value="240" />  -->				
+				value="240" />  -->					
 		</properties>
 	</persistence-unit>
 </persistence>

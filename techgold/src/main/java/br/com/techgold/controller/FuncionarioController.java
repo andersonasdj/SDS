@@ -1,6 +1,7 @@
 package br.com.techgold.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -16,23 +17,34 @@ import br.com.techgold.modelo.Funcionario;
 @Controller
 public class FuncionarioController {
 	
+	//para criação do primeiro usuario do sistema
+	@RequestMapping("/gravaAdmin")
+	public String gravaAdmin(Funcionario funcionario) {
+		FuncionarioDao daoTesta = new FuncionarioDao();
+		if(daoTesta.listaFuncionario().size() == 0){
+			FuncionarioDao dao = new FuncionarioDao();
+			dao.salvar(funcionario);
+			return "redirect:login";
+		}
+		return "redirect:login";
+	}
+	
 	@RequestMapping("/homePage")
 	public String homePage(HttpSession session, Model model) {
-		if (session.getAttribute("funcionarioLogado") != null) {
-			Funcionario funcionario = (Funcionario) session.getAttribute("funcionarioLogado");
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			homePageAdiconaModel(model, funcionario);
-			return "admin/home-page";
-		} if (session.getAttribute("tecnicoLogado") != null) {
-			Funcionario funcionario = (Funcionario) session.getAttribute("tecnicoLogado");
-			homePageAdiconaModel(model, funcionario);
-			return "funcionario/home-page";
-		}	
-		else {
+			return funcionario.getFuncao()+"/home-page";
+		}else {
 			return "redirect:loginFuncionario";
 		}
 	}
 
 	private void homePageAdiconaModel(Model model, Funcionario funcionario) {
+		Calendar hoje = Calendar.getInstance();
+		hoje.set(Calendar.HOUR_OF_DAY, 0);
+		hoje.set(Calendar.MINUTE, 0);
+		hoje.set(Calendar.SECOND, 0);
 		SolicitacaoDao dao = new SolicitacaoDao();
 		model.addAttribute("qtdAberto", dao.listaQtdSolicitacoesAbertasPorIdDoTecnico(funcionario.getId()));
 		SolicitacaoDao daoAgendadas = new SolicitacaoDao();
@@ -41,12 +53,16 @@ public class FuncionarioController {
 		model.addAttribute("qtdEmAndamento", daoAndamento.listaQtdSolicitacoesEmAndamentoPorIdDoTecnico(funcionario.getId()));
 		SolicitacaoDao daoAguardando = new SolicitacaoDao();
 		model.addAttribute("qtdAguardando", daoAguardando.listaQtdSolicitacoesAguardandoPorIdDoTecnico(funcionario.getId()));
+		SolicitacaoDao daoAgendaAtrasados = new SolicitacaoDao();
+		model.addAttribute("qtdAgendadoAtrasado", daoAgendaAtrasados.listaSolicitacoesPorAgendamentoAtrasado(hoje).size());
+		SolicitacaoDao daoAgendamentosHoje = new SolicitacaoDao();
+		model.addAttribute("qtdAgendadoHoje", daoAgendamentosHoje.listaSolicitacoesPorAgendamento(hoje).size());
 	}
 	
 	@RequestMapping("/funcionarioForm")
 	public String funcionarioForm(HttpSession session) {
 		if (session.getAttribute("funcionarioLogado") != null) {
-			return "admin/funcionario-form";
+			return "Administrador/funcionario-form";
 		} else {
 			return "redirect:loginFuncionario";
 		}
@@ -58,27 +74,23 @@ public class FuncionarioController {
 		dao.salvar(funcionario);
 		return "redirect:funcionarioForm";
 	}
-
+	
 	@RequestMapping("/atualizarDados")
 	public String atualizarDados(HttpSession session) {
-		if (session.getAttribute("funcionarioLogado") != null) {
-			return "admin/atualiza-dados";
-		}
-		if (session.getAttribute("tecnicoLogado") != null) {
-			return "funcionario/atualiza-dados";
-		} else {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
+			return funcionario.getFuncao()+"/atualiza-dados";
+		}else {
 			return "redirect:loginFuncionario";
 		}
 	}
 	
 	@RequestMapping("/atualizarSenha")
 	public String atualizarSenha(HttpSession session) {
-		if (session.getAttribute("funcionarioLogado") != null) {
-			return "admin/atualiza-senha";
-		}
-		if (session.getAttribute("tecnicoLogado") != null) {
-			return "funcionario/atualiza-senha";
-		} else {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
+			return funcionario.getFuncao()+"/atualiza-senha";
+		}else {
 			return "redirect:loginFuncionario";
 		}
 	}
@@ -89,8 +101,7 @@ public class FuncionarioController {
 			FuncionarioDao dao = new FuncionarioDao();
 			Funcionario funcionarioEncontrado = dao.buscarPorId(id);
 			model.addAttribute("funcionario", funcionarioEncontrado);
-			
-			return "admin/atualiza-senha-funcionario";
+			return "Administrador/atualiza-senha-funcionario";
 		} else {
 			return "redirect:login";
 		}
@@ -111,7 +122,6 @@ public class FuncionarioController {
 	public String atualizarMinhaSenha(Funcionario funcionario, String novaSenha, String confirmaSenha, HttpSession session) {
 		if (session.getAttribute("funcionarioLogado") != null || session.getAttribute("tecnicoLogado") != null) {
 			FuncionarioDao dao = new FuncionarioDao();
-		
 			if(novaSenha.equals(confirmaSenha)){
 				funcionario.setSenha(novaSenha);
 				dao.atualizarSenha(funcionario);
@@ -132,7 +142,7 @@ public class FuncionarioController {
 			FuncionarioDao dao = new FuncionarioDao();
 			funcionarios = dao.listaFuncionario();
 			model.addAttribute("funcionarios", funcionarios);
-			return "admin/funcionario-list";
+			return "Administrador/funcionario-list";
 		} else {
 			return "redirect:homePage";
 		}
@@ -145,7 +155,7 @@ public class FuncionarioController {
 			Funcionario funcionarioEditado = new Funcionario();
 			funcionarioEditado = dao.buscarPorId(id);
 			model.addAttribute("funcionario", funcionarioEditado);
-			return "admin/funcionario-edit";
+			return "Administrador/funcionario-edit";
 		} else {
 			return "redirect:login";
 		}

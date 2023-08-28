@@ -48,7 +48,41 @@ public class ClienteDao {
 		manager.close();
 		return cliente;
 	}
+	
+	public Cliente buscaIdFuncionario(Long id) {
+		Cliente clienteEncontrado = new Cliente();
 
+		try {
+			Query query = manager
+					.createQuery("select c from Cliente c where c.funcionarioCliente.idFuncionario=:pId");
+			query.setParameter("pId", id);
+			clienteEncontrado = (Cliente) query.getSingleResult();
+			manager.close(); // ultima modificação
+			
+			if (clienteEncontrado != null) {
+				return clienteEncontrado;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			manager.close();
+			return null;
+		} 
+	}
+
+
+	public void atualizar(Cliente cliente) {
+		cliente.setDataAtualizacao(Calendar.getInstance());
+		//CRIPTOGRAFA SENHA
+			String senhaCriptografada = Criptografia.converteSenhaParaMD5(cliente.getSenha());
+			cliente.setSenha(senhaCriptografada);
+		//CRIPTOGRAFA SENHA
+		manager.getTransaction().begin();
+		manager.merge(cliente);
+		manager.getTransaction().commit();
+		manager.close();
+	}
+	
 	public Cliente buscaClienteUsuarioESenha(String usuario, String senha) {
 		Cliente clienteEncontrado = new Cliente();
 		//CRIPTOGRAFA SENHA 
@@ -83,7 +117,7 @@ public class ClienteDao {
 					.createQuery("select c from Cliente c where c.nome=:pNome");
 			query.setParameter("pNome", nomeCliente);
 			clienteEncontrado = (Cliente) query.getSingleResult();
-			manager.close(); // ultima modificaï¿½ï¿½o
+			manager.close(); // ultima modificação
 			
 			if (clienteEncontrado != null) {
 				return clienteEncontrado;
@@ -125,7 +159,7 @@ public class ClienteDao {
 
 		try {
 			Query query = manager.createQuery("select c from Cliente c order by c.nome");
-
+			
 			clientes = (List<Cliente>) query.getResultList();
 
 			if (clientes != null) {
@@ -139,16 +173,24 @@ public class ClienteDao {
 			manager.close();
 		}
 	}
+	@SuppressWarnings("unchecked")
+	public List<Cliente> listaClienteAtivo() {
+		List<Cliente> clientes = new ArrayList<Cliente>();
 
-	public void atualizar(Cliente cliente) {
-		cliente.setDataAtualizacao(Calendar.getInstance());
-		//CRIPTOGRAFA SENHA
-			String senhaCriptografada = Criptografia.converteSenhaParaMD5(cliente.getSenha());
-			cliente.setSenha(senhaCriptografada);
-		//CRIPTOGRAFA SENHA
-		manager.getTransaction().begin();
-		manager.merge(cliente);
-		manager.getTransaction().commit();
-		manager.close();
+		try {
+			Query query = manager.createQuery("select c from Cliente c where c.status=:pStatus order by c.nome");
+			query.setParameter("pStatus", "Ativo");
+			clientes = (List<Cliente>) query.getResultList();
+
+			if (clientes != null) {
+				return clientes;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		} finally {
+			manager.close();
+		}
 	}
 }

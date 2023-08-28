@@ -1,6 +1,7 @@
 package br.com.techgold.modelo;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Cliente extends Usuario {
@@ -11,6 +12,45 @@ public class Cliente extends Usuario {
 	private String cnpj;
 	private String razaoSocial;
 	private String responsavelTecnico;
+	private double latitude;
+	private double longitude;
+	private boolean redFlag;
+	private boolean vip;
+	
+	public boolean isVip() {
+		return vip;
+	}
+
+	public void setVip(boolean vip) {
+		this.vip = vip;
+	}
+
+	public boolean isRedFlag() {
+		return redFlag;
+	}
+
+	public void setRedFlag(boolean redFlag) {
+		this.redFlag = redFlag;
+	}
+
+	@OneToOne
+	private FuncionarioCliente funcionarioCliente;
+	
+	public double getLatitude() {
+		return latitude;
+	}
+	
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+	
+	public double getLongitude() {
+		return longitude;
+	}
+	
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
 	
 	public String getEndereco() {
 		return endereco;
@@ -121,5 +161,12 @@ public class Cliente extends Usuario {
 			return false;
 		return true;
 	}
-	
+
+	public FuncionarioCliente getFuncionarioCliente() {
+		return funcionarioCliente;
+	}
+
+	public void setFuncionarioCliente(FuncionarioCliente funcionarioCliente) {
+		this.funcionarioCliente = funcionarioCliente;
+	}
 }

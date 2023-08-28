@@ -25,8 +25,9 @@ public class Computador {
 	private String modeloProcessador;
 	private String familia;
 	private String tipoProcessador;
-	private String frequenciaProcessador;
-	private String qtdMemoria;	
+	private Double frequenciaProcessador;
+	private Double pontos;
+	private int qtdMemoria;	
 	private String qtdHd;
 	private String sistemaOperacionalInstalado;
 	private String officeInstalado;
@@ -45,6 +46,23 @@ public class Computador {
 	@DateTimeFormat(pattern = "dd-MM-yyyy")
 	private Calendar expiracaoAV;
 	private String status;
+	private boolean ssd;
+
+	public Double getPontos() {
+		return pontos;
+	}
+
+	public void setPontos(Double pontos) {
+		this.pontos = pontos;
+	}
+
+	public boolean isSsd() {
+		return ssd;
+	}
+
+	public void setSsd(boolean ssd) {
+		this.ssd = ssd;
+	}
 
 	public Long getId() {
 		return id;
@@ -78,11 +96,11 @@ public class Computador {
 		return tipoProcessador;
 	}
 
-	public String getFrequenciaProcessador() {
+	public Double getFrequenciaProcessador() {
 		return frequenciaProcessador;
 	}
 
-	public String getQtdMemoria() {
+	public int getQtdMemoria() {
 		return qtdMemoria;
 	}
 
@@ -146,11 +164,11 @@ public class Computador {
 		this.tipoProcessador = tipoProcessador;
 	}
 
-	public void setFrequenciaProcessador(String frequenciaProcessador) {
+	public void setFrequenciaProcessador(Double frequenciaProcessador) {
 		this.frequenciaProcessador = frequenciaProcessador;
 	}
 
-	public void setQtdMemoria(String qtdMemoria) {
+	public void setQtdMemoria(int qtdMemoria) {
 		this.qtdMemoria = qtdMemoria;
 	}
 
@@ -236,5 +254,55 @@ public class Computador {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	public void calculaDesempenho(){
+		double val=0.0;
+		
+		if(this.marca.toLowerCase().contains("dell") || this.marca.toLowerCase().contains("lenovo")){
+			val += 0.5;
+		}else if(this.marca.toLowerCase().contains("sony") || this.marca.toLowerCase().contains("ibm")){
+			val += 0.5;
+		}
+	
+		if(this.modeloProcessador.toLowerCase().contains("intel")){
+			val += 0.5;
+		}
+		
+		if(this.familia.toLowerCase().contains("core")){
+			val += 2.0;
+		} else if(this.familia.toLowerCase().contains("xeon")){
+			val += 3.0;
+		} else if(this.familia.toLowerCase().contains("phenom ii")){
+			val += 1.0;
+		} else {
+			val += 1.0;
+		}
+		
+		if(this.tipoProcessador.toLowerCase().contains("e3-1220") || 
+				this.tipoProcessador.toLowerCase().contains("e5-2420")){
+			val += 4.0;
+		}else if(this.tipoProcessador.toLowerCase().contains("i7")){
+			val += 3.0;
+		}else if(this.tipoProcessador.toLowerCase().contains("i5")){
+			val += 2.5;
+		}else if(this.tipoProcessador.toLowerCase().contains("i3")){
+			val += 2.0;
+		}else if(this.tipoProcessador.toLowerCase().contains("2 quad")){
+			val += 1.5;
+		}else if(this.tipoProcessador.toLowerCase().contains("2 duo")){
+			val += 1.0;
+		} else{
+			val += 0.5;
+		}
+
+		val += this.frequenciaProcessador;
+		val += this.qtdMemoria / 1000;
+
+		if(this.ssd){
+			val += 2.0;
+		}
+		
+		this.pontos = val;
 	}
 }

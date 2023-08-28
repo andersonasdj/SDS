@@ -14,19 +14,17 @@ import br.com.techgold.dao.ComputadorDao;
 import br.com.techgold.dao.PerifericosDao;
 import br.com.techgold.modelo.Cliente;
 import br.com.techgold.modelo.Computador;
+import br.com.techgold.modelo.Funcionario;
 
 @Controller
 public class ComputadorController {
 	
 	@RequestMapping("/computadorForm")
 	public String computadorForm(HttpSession session, Model model){
-		if (session.getAttribute("funcionarioLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			computadorFormAdiconaModel(model);	
-			return "admin/computador-form";
-		}
-		if (session.getAttribute("tecnicoLogado") != null) {
-			computadorFormAdiconaModel(model);	
-			return "funcionario/computador-form";
+			return funcionario.getFuncao()+"/computador-form";
 		}else {
 			return "redirect:login";
 		}
@@ -41,12 +39,10 @@ public class ComputadorController {
 	
 	@RequestMapping("salvarComputador")
 	public String salvarComputador(Computador computador, String nomeDoCliente, HttpSession session) {
-		if (session.getAttribute("funcionarioLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			return salvaComputadorEAdicionaModel(computador, nomeDoCliente);
-		}
-		if (session.getAttribute("tecnicoLogado") != null) {
-			return salvaComputadorEAdicionaModel(computador, nomeDoCliente);
-		}else {
+		} else {
 			return "redirect:login";
 		}
 	}
@@ -56,19 +52,17 @@ public class ComputadorController {
 		ClienteDao daoCli = new ClienteDao();
 		Cliente clienteASalvar = daoCli.buscaNomeCliente(nomeDoCliente);	
 		ComputadorDao dao = new ComputadorDao();
+		computador.calculaDesempenho();
 		dao.salvaComputador(computador, clienteASalvar);
 		return "redirect:computadorForm";
 	}
 	
 	@RequestMapping("/computadorList")
 	public String funcionariosList(HttpSession session, Model model) {
-		if (session.getAttribute("funcionarioLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			computadorListEAdicionaModel(model);
-			return "admin/computador-list";
-		} 
-		if (session.getAttribute("tecnicoLogado") != null) {
-			computadorListEAdicionaModel(model);
-			return "funcionario/computador-list";
+			return funcionario.getFuncao()+"/computador-list";
 		} else {
 			return "redirect:login";
 		}
@@ -83,13 +77,10 @@ public class ComputadorController {
 	
 	@RequestMapping("/computadorListCliente")
 	public String funcionariosListCliente(HttpSession session, String nomeDoCliente, Model model) {
-		if (session.getAttribute("funcionarioLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			computadorListPorClienteEAdiconaModel(nomeDoCliente, model);
-			return "admin/computador-list";
-		} 
-		if (session.getAttribute("tecnicoLogado") != null) {
-			computadorListPorClienteEAdiconaModel(nomeDoCliente, model);
-			return "funcionario/computador-list";
+			return funcionario.getFuncao()+"/computador-list";
 		} else {
 			return "redirect:login";
 		}
@@ -106,13 +97,10 @@ public class ComputadorController {
 	
 	@RequestMapping("/computadorEdit")
 	public String computadorEdit(Long id, HttpSession session, Model model) {
-		if (session.getAttribute("funcionarioLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			computadorEditEAdicionaModel(id, model);	
-			return "admin/computador-edit";
-		} 
-		if (session.getAttribute("tecnicoLogado") != null) {
-			computadorEditEAdicionaModel(id, model);	
-			return "funcionario/computador-edit";
+			return funcionario.getFuncao()+"/computador-edit";
 		} else {
 			return "redirect:login";
 		}
@@ -129,11 +117,8 @@ public class ComputadorController {
 	
 	@RequestMapping("/atualizarComputador")
 	public String atualizar(Computador computador, String nomeCliente, HttpSession session) {
-		if (session.getAttribute("funcionarioLogado") != null) {
-			atualizarComputadorMvc(computador, nomeCliente);
-			return "redirect:computadorList";
-		} 
-		if (session.getAttribute("tecnicoLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			atualizarComputadorMvc(computador, nomeCliente);
 			return "redirect:computadorList";
 		} else {
@@ -141,11 +126,11 @@ public class ComputadorController {
 		}
 	}
 
-	private void atualizarComputadorMvc(Computador computador,
-			String nomeCliente) {
+	private void atualizarComputadorMvc(Computador computador, String nomeCliente) {
 		ComputadorDao dao = new ComputadorDao();
 		ClienteDao daoCli = new ClienteDao();
 		Cliente clienteSalvar = daoCli.buscaNomeCliente(nomeCliente);
+		computador.calculaDesempenho();
 		dao.atualizar(computador, clienteSalvar);
 	}
 }

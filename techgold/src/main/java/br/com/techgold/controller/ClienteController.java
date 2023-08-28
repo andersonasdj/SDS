@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import br.com.techgold.dao.ClienteDao;
 import br.com.techgold.dao.SolicitacaoDao;
 import br.com.techgold.modelo.Cliente;
+import br.com.techgold.modelo.Funcionario;
 
 @Controller
 public class ClienteController {
@@ -24,7 +25,7 @@ public class ClienteController {
 			model.addAttribute("solicitacoes",
 					dao.listaSolicitacoesAbertasPorId(cliente.getId()));
 					
-			Long ab, and, age;
+			Long ab, and, age, agua;
 			SolicitacaoDao daoAberto = new SolicitacaoDao();
 			ab = daoAberto.listaQtdSolicitacoesAbertasPorIdDoCliente(cliente.getId());
 			model.addAttribute("qtdAberto", ab);
@@ -37,9 +38,13 @@ public class ClienteController {
 			and = daoAndamento.listaQtdSolicitacoesAndamentoPorIdDoCliente(cliente.getId());
 			model.addAttribute("qtdAndamento", and);
 			
-			model.addAttribute("qtdTotal", ab + age + and);
+			SolicitacaoDao daoAguardando = new SolicitacaoDao();
+			agua = daoAguardando.listaQtdSolicitacoesAguardandoPorIdDoCliente(cliente.getId());
+			model.addAttribute("qtdAguardando", agua);
+			
+			model.addAttribute("qtdTotal", ab + age + and + agua);
 
-			return "cliente/home";
+			return "Cliente/home";
 		} else {
 			return "redirect:login";
 		}
@@ -59,23 +64,27 @@ public class ClienteController {
 	@RequestMapping("/clienteForm")
 	public String clienteForm(HttpSession session) {
 		if (session.getAttribute("funcionarioLogado") != null) {
-			return "admin/cliente-form";
+			return "Administrador/cliente-form";
 		} else {
 			return "redirect:loginFuncionario";
 		}
 	}
 	
 	@RequestMapping("/gravarCliente")
-	public String gravaUsuario(Cliente cliente) {
-		ClienteDao dao = new ClienteDao();
-		dao.salvar(cliente);
-		return "redirect:clienteForm";
+	public String gravaUsuario(HttpSession session, Cliente cliente) {
+		if (session.getAttribute("funcionarioLogado") != null) {
+			ClienteDao dao = new ClienteDao();
+			dao.salvar(cliente);
+			return "redirect:clienteForm";
+		} else {
+			return "redirect:login";
+		}
 	}
 	
 	@RequestMapping("/atualizarCadastro")
 	public String atualizarDados(HttpSession session) {
 		if (session.getAttribute("clienteLogado") != null) {
-			return "cliente/atualiza-dados";
+			return "Cliente/atualiza-dados";
 		} else {
 			return "redirect:login";
 		}
@@ -94,12 +103,13 @@ public class ClienteController {
 	
 	@RequestMapping("/clientesList")
 	public String clientesList(HttpSession session, Model model) {
-		if (session.getAttribute("funcionarioLogado") != null) {
+		Funcionario funcionario = session.getAttribute("funcionarioLogado") != null?(Funcionario) session.getAttribute("funcionarioLogado"):(Funcionario) session.getAttribute("tecnicoLogado");
+		if (funcionario != null) {
 			List<Cliente> clientes = new ArrayList<Cliente>();
 			ClienteDao dao = new ClienteDao();
 			clientes = dao.listaCliente();
 			model.addAttribute("clientes", clientes);
-			return "admin/cliente-list";
+			return funcionario.getFuncao()+"/cliente-list";
 		} else {
 			return "redirect:homePage";
 		}
@@ -112,7 +122,7 @@ public class ClienteController {
 			Cliente clienteEditado = new Cliente();
 			clienteEditado = dao.buscarPorId(id);
 			model.addAttribute("cliente", clienteEditado);
-			return "admin/cliente-edit";
+			return "Administrador/cliente-edit";
 		} else {
 			return "redirect:loginFuncionario";
 		}

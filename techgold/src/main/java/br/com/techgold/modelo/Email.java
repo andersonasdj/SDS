@@ -17,17 +17,19 @@ public class Email {
 	private String senha;
 	private String smtp;
 	private int portaSmtp;
-
 	private String assunto;
 	@Lob
 	private String mensagem;
-
 	private boolean sslStatus;
-
 	private boolean autenticacao;
-	
 	private String funcaoDoEmail;
-
+	private String cc;
+	
+	private String nomeAssinatura;
+	private String numeroAssinatura;
+	private String emailAssinatura;
+	private String linkDominio;
+	
 	public Long getId() {
 		return id;
 	}
@@ -116,4 +118,43 @@ public class Email {
 		this.funcaoDoEmail = funcaoDoEmail;
 	}
 
+	public String getCc() {
+		return cc;
+	}
+
+	public void setCc(String cc) {
+		this.cc = cc;
+	}
+
+	public String getNomeAssinatura() {
+		return nomeAssinatura;
+	}
+
+	public void setNomeAssinatura(String nomeAssinatura) {
+		this.nomeAssinatura = nomeAssinatura;
+	}
+
+	public String getNumeroAssinatura() {
+		return numeroAssinatura;
+	}
+
+	public void setNumeroAssinatura(String numeroAssinatura) {
+		this.numeroAssinatura = numeroAssinatura;
+	}
+
+	public String getEmailAssinatura() {
+		return emailAssinatura;
+	}
+
+	public void setEmailAssinatura(String emailAssinatura) {
+		this.emailAssinatura = emailAssinatura;
+	}
+
+	public String getLinkDominio() {
+		return linkDominio;
+	}
+
+	public void setLinkDominio(String linkDominio) {
+		this.linkDominio = linkDominio;
+	}
 }

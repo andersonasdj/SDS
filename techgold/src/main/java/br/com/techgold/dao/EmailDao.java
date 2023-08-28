@@ -25,10 +25,10 @@ public class EmailDao {
 		manager.close();
 	}
 
-	public void excluir(Email email) {
+	public void excluir(Long id) {
 		manager.getTransaction().begin();
 		Email emailRemover = new Email();
-		emailRemover = manager.find(Email.class, email.getId());
+		emailRemover = manager.find(Email.class, id);
 		manager.remove(emailRemover);
 		manager.getTransaction().commit();
 		manager.close();
@@ -41,6 +41,13 @@ public class EmailDao {
 		manager.getTransaction().commit();
 		manager.close();
 		return email;
+	}
+
+	public void atualizar(Email email) {
+		manager.getTransaction().begin();
+		manager.merge(email);
+		manager.getTransaction().commit();
+		manager.close();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -64,11 +71,11 @@ public class EmailDao {
 		}
 	}
 	
-	public Email listaEmailConfigAbertura() {
+	public Email listaEmailConfigEnvia(String funcao) {
 		Email emailConfigAbertura = new Email();
 		try {
 			Query query = manager.createQuery("select e from Email e where e.funcaoDoEmail=:pFuncao");
-			query.setParameter("pFuncao", "Abertura");
+			query.setParameter("pFuncao", funcao);
 			
 			emailConfigAbertura = (Email) query.getSingleResult();
 
@@ -82,12 +89,5 @@ public class EmailDao {
 		} finally {
 			manager.close();
 		}
-	}
-
-	public void atualizar(Email email) {
-		manager.getTransaction().begin();
-		manager.merge(email);
-		manager.getTransaction().commit();
-		manager.close();
 	}
 }
